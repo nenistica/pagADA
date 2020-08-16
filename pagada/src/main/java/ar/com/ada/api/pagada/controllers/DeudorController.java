@@ -13,6 +13,7 @@ import ar.com.ada.api.pagada.entities.Deudor;
 import ar.com.ada.api.pagada.models.request.DeudorRequest;
 import ar.com.ada.api.pagada.models.response.GenericResponse;
 import ar.com.ada.api.pagada.services.DeudorService;
+import ar.com.ada.api.pagada.services.DeudorService.DeudorValidacionEnum;
 
 @RestController
 public class DeudorController {
@@ -42,7 +43,15 @@ public class DeudorController {
     public ResponseEntity<GenericResponse> crearDeudor(@RequestBody DeudorRequest deuR) {
         GenericResponse gr = new GenericResponse();
 
-        // to do: hacer validaciones y crear la empresa a traves del service
+        DeudorValidacionEnum resultadoValidacion = deudorService.validarDeudorInfo(dr.paisId, dr.tipoIdImpositivo,
+                dr.idImpositivo, dr.nombre);
+        if (resultadoValidacion != DeudorValidacionEnum.OK) {
+            gr.isOk = false;
+            gr.message = "No se pudo validar el deudor " + resultadoValidacion.toString();
+
+            return ResponseEntity.badRequest().body(gr); // http 400
+        }
+           
 
         Deudor deu = new Deudor();
         deu.setPaisId(deuR.paisId);
@@ -51,6 +60,8 @@ public class DeudorController {
         deu.setNombre(deuR.nombre);
 
         deudorService.crearDeudor(deu);
+
+        // Deudor deudor = deudorService.crearDeudor(dr.paisId, dr.tipoIdImpositivo, dr.idImpositivo, dr.nombre);
         
 
         if (deu.getDeudorId() != null) {
