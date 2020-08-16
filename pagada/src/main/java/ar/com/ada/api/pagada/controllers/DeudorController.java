@@ -43,8 +43,8 @@ public class DeudorController {
     public ResponseEntity<GenericResponse> crearDeudor(@RequestBody DeudorRequest deuR) {
         GenericResponse gr = new GenericResponse();
 
-        DeudorValidacionEnum resultadoValidacion = deudorService.validarDeudorInfo(dr.paisId, dr.tipoIdImpositivo,
-                dr.idImpositivo, dr.nombre);
+        DeudorValidacionEnum resultadoValidacion = deudorService.validarDeudorInfo(deuR.paisId, deuR.tipoIdImpositivo,
+                deuR.idImpositivo, deuR.nombre);
         if (resultadoValidacion != DeudorValidacionEnum.OK) {
             gr.isOk = false;
             gr.message = "No se pudo validar el deudor " + resultadoValidacion.toString();

@@ -19,25 +19,8 @@ public class DeudorService {
         return deudorRepo.findAll();
     }
 
-    public void guardar(Deudor deudor) {
-        deudorRepo.save(deudor);
-    }
-
-    public Deudor crearDeudor(Integer paisId, TipoIdImpositivoEnum tipoIdImpositivo, String idImpositivo,
-            String nombre) {
-
-        Deudor deudor = new Deudor();
-        deudor.setPaisId(paisId);
-        deudor.setTipoIdImpositivo(tipoIdImpositivo);
-        deudor.setIdImpositivo(idImpositivo);
-        deudor.setNombre(nombre);
-
-        guardar(deudor);
-
-        if (deudor.getDeudorId() == null)
-            return null;
-
-        return deudor;
+    public Deudor crearDeudor(Deudor deudor) {
+         return deudorRepo.save(deudor);
     }
 
         // Evitar pasar el model DeudorRequest que referencia a algo que pasa FRONT o
@@ -108,4 +91,3 @@ public class DeudorService {
     }
 }
 
-}
