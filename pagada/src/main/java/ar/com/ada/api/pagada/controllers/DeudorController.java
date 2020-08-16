@@ -29,8 +29,8 @@ public class DeudorController {
     @GetMapping("/api/deudores")
     public ResponseEntity<List<Deudor>> listarDeudores() {
         List<Deudor> deudores;
-        // to do :obtener lista de empresas a través del service y lo guardamos en la
-        // varable empresas
+        // to do :obtener lista de deudores a través del service y lo guardamos en la
+        // varable deudores
 
         deudores = deudorService.listarDeudores();
         return ResponseEntity.ok(deudores);
