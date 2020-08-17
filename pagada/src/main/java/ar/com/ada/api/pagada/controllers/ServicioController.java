@@ -1,11 +1,16 @@
 package ar.com.ada.api.pagada.controllers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import ar.com.ada.api.pagada.entities.*;
 import ar.com.ada.api.pagada.models.request.ServicioRequest;
 import ar.com.ada.api.pagada.models.response.GenericResponse;
 import ar.com.ada.api.pagada.services.*;
 import ar.com.ada.api.pagada.services.ServicioService.ServicioValidacionEnum;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -80,6 +85,25 @@ public class ServicioController {
             return ResponseEntity.ok(genericResponse);
         }
 
+    } 
+    
+    // LISTA los que son de la empresa y son pendientes.
+    @GetMapping("/api/servicios")
+    public ResponseEntity<List<Servicio>> listarServicios(
+            @RequestParam(name = "empresa", required = false) Integer empresa,
+            @RequestParam(name = "deudor", required = false) Integer deudor) {
+        List<Servicio> servicios = new ArrayList<>();
+
+        if (empresa == null)
+            servicios = servicioService.listarServicios();
+        else {
+
+            // LISTA los que son de la empresa y son pendientes.
+            servicios = servicioService.listarServiciosPendientesPorEmpresaId(empresa);
+        }
+
+        return ResponseEntity.ok(servicios);
     }
+
 
 } 
