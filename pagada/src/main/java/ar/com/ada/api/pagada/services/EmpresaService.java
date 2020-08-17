@@ -82,7 +82,11 @@ public class EmpresaService {
         ID_IMPOSITIVO_INVALIDO // ID impositivo tenga un problema
     }
 
-
+    public Empresa buscarEmpresaPorId(Integer empresaId) {
+        // en este caso para reusar el findById que no devuelva optional
+        // tenemos qeu castear el Integer a int
+        return empresaRepository.findById((int) empresaId);
+    }
 
 
 
