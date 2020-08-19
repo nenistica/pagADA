@@ -189,17 +189,25 @@ public class ServicioService {
     }
 
     public Pago buscarPagoPorId(Integer pagoId) {
-		return pagoRepo.findByPagoId(pagoId);
-	}
+        return pagoRepo.findByPagoId(pagoId);
+    }
 
-	public List<Pago> buscarPagosPorEmpresaId(Integer empresaId) {
-		return pagoRepo.findPagosByEmpresaId(empresaId);
-	}
+    public List<Pago> buscarPagosPorEmpresaId(Integer empresaId) {
+        return pagoRepo.findPagosByEmpresaId(empresaId);
+    }
 
-	public List<Pago> buscarPagosPorDeudorId(Integer deudorId) {
-		return pagoRepo.findPagosByDeudorId(deudorId);
-	}
+    public List<Pago> buscarPagosPorDeudorId(Integer deudorId) {
+        return pagoRepo.findPagosByDeudorId(deudorId);
+    }
 
-
+    public void grabar(Servicio servicio) {
+        servicioRepo.save(servicio);
+    }
 
 }
+
+/*
+ * Modificar Vencimiento e Importe de un Servicio PUT /api/servicios/{id}
+ * Payload esperado(RequestBody) { "importe": 939393, "vencimiento":
+ * "2020-05-20" }
+ */
