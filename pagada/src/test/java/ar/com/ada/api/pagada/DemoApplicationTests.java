@@ -184,6 +184,15 @@ class DemoApplicationTests {
 		assertTrue(resultado == DeudorValidacionEnum.NOMBRE_INVALIDO);
 
 	}
+
+	@Test
+	void PagoInfoOfuscada() {
+		Pago pago = new Pago();
+		pago.setInfoMedioPago("123456789");
+		String infoOfuscada = pago.ofuscarInfoMedioPago();
+		assertEquals("*789", infoOfuscada);
+	}
+
 }
 
 
