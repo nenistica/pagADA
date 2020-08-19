@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import ar.com.ada.api.pagada.entities.Servicio.EstadoEnum;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -236,19 +237,19 @@ public class ServicioController {
      */
     @PutMapping("/api/servicios/{id}")
     public ResponseEntity<GenericResponse> actualizarServicio(@PathVariable Integer id,
-            @RequestBody ActualizarServicioRequest actualizarS) { GenericResponse response = new GenericResponse();
+            @RequestBody ActualizarServicioRequest actualizarS) {
+        GenericResponse response = new GenericResponse();
 
-                // Buscar el servicio
-                // actualizar propiedades
-                // grabarlo
-        
-                Servicio servicio = servicioService.buscarServicioPorId(id);
-        
-                servicio.setImporte(actualizarS.importe);
-                servicio.setFechaVencimiento(actualizarS.vencimiento)
-        ;
+        // Buscar el servicio
+        // actualizar propiedades
+        // grabarlo
 
-        //Agrego validacion adicional, mas alla de ue la hago en grabar.
+        Servicio servicio = servicioService.buscarServicioPorId(id);
+
+        servicio.setImporte(actualizarS.importe);
+        servicio.setFechaVencimiento(actualizarS.vencimiento);
+
+        // Agrego validacion adicional, mas alla de ue la hago en grabar.
         ServicioValidacionEnum servicioVResultado;
         servicioVResultado = servicioService.validarServicio(servicio);
 
@@ -265,13 +266,56 @@ public class ServicioController {
         servicio.setImporte(actualizarS.importe);
         servicio.setFechaVencimiento(actualizarS.vencimiento);
 
-        servicioService.grabar(servicio);
+        // Agrego validacion adicional, mas alla de ue la hago en grabar.
+        ServicioValidacionEnum servicioVResultado;
+        servicioVResultado = servicioService.validarServicio(servicio);
 
-        
+        if (servicioVResultado != ServicioValidacionEnum.OK) {
+            response.isOk = false;
+            response.message = "Hubo un error en la validacion del servicio " + servicioVResultado;
+            return ResponseEntity.badRequest().body(response); // Error http 400
+        }
+
+        servicioService.grabar(servicio);
         response.isOk = true;
         response.message = "Servicio actualizado!";
         response.id = servicio.getServicioId();
 
         return ResponseEntity.ok(response);
+    }
+
+    /*
+     * 6) Anular un servicio: DELETE /api/servicios/{id} : debe poner en estado
+     * ANULADO a un servicio.
+     * 
+     * Hacer un Test qeu valide que cuando se "anule" un servicio mediante el
+     * service, verificar en la base de datos que haya sido realmente anulado.
+     */
+    @DeleteMapping("/api/servicios/{id}")
+    public ResponseEntity<GenericResponse> anularServicio(@PathVariable Integer id) {
+        // buscar el servicio x id//
+        // setear el estado//
+        // grabar DB//
+        GenericResponse servicioAnulado = new GenericResponse();
+
+        Servicio servicio = servicioService.buscarServicioPorId(id);
+
+        if (servicio.getEstadoId() == EstadoEnum.PAGADO) {
+            servicioAnulado.isOk = false;
+            servicioAnulado.message = "No se puede anular un servicio pago";
+
+            return ResponseEntity.badRequest().body(servicioAnulado); // Error http 400
+        }
+
+        servicio.setEstadoId(EstadoEnum.ANULADO);
+
+        servicioService.grabar(servicio);
+
+        servicioAnulado.isOk = true;
+        servicioAnulado.id = id;
+        servicioAnulado.message = "Se anulo con exito";
+
+        return ResponseEntity.ok(servicioAnulado);
+
     }
 }
