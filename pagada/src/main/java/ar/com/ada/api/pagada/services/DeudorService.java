@@ -20,11 +20,27 @@ public class DeudorService {
         return deudorRepo.findAll();
     }
 
-    public Deudor crearDeudor(Deudor deudor) {
-         return deudorRepo.save(deudor);
+    public void guardar(Deudor deudor) {
+        deudorRepo.save(deudor);
     }
 
-        // Evitar pasar el model DeudorRequest que referencia a algo que pasa FRONT o
+    public Deudor crearDeudor(Integer paisId, TipoIdImpositivoEnum tipoIdImpositivo, String idImpositivo,
+            String nombre) {
+
+        Deudor deudor = new Deudor();
+        deudor.setPaisId(paisId);
+        deudor.setTipoIdImpositivo(tipoIdImpositivo);
+        deudor.setIdImpositivo(idImpositivo);
+        deudor.setNombre(nombre);
+
+        guardar(deudor);
+
+        if (deudor.getDeudorId() == null)
+            return null;
+
+        return deudor;
+    }
+    // Evitar pasar el model DeudorRequest que referencia a algo que pasa FRONT o
     // desde afuera, hacia la capa Service
     // Si se hace, usarlo con otro nombre o con otro tipo de funcionalidad.
     // O sea este metodo evitarlo hacerlo asi:
@@ -90,7 +106,7 @@ public class DeudorService {
         NOMBRE_INVALIDO, // Nombre tenga algun problema
         ID_IMPOSITIVO_INVALIDO // ID impositivo tenga un problema
     }
-    
+
     public Deudor buscarDeudorPorId(Integer deudorId) {
         Optional<Deudor> oDeudor = deudorRepo.findById(deudorId);
         if (oDeudor.isPresent()) {
@@ -101,4 +117,3 @@ public class DeudorService {
     }
 
 }
-

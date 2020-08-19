@@ -2,51 +2,56 @@ package ar.com.ada.api.pagada.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
-import ar.com.ada.api.pagada.entities.OperacionPago.OperacionPagoEnum;
-import ar.com.ada.api.pagada.models.request.ActualizarServicioRequest;
-import ar.com.ada.api.pagada.models.request.InfoPagoRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import ar.com.ada.api.pagada.entities.*;
+import ar.com.ada.api.pagada.entities.OperacionPago.OperacionPagoEnum;
+import ar.com.ada.api.pagada.entities.Servicio.EstadoEnum;
+import ar.com.ada.api.pagada.models.request.ActualizarServicioRequest;
+import ar.com.ada.api.pagada.models.request.InfoPagoRequest;
 import ar.com.ada.api.pagada.models.request.ServicioRequest;
 import ar.com.ada.api.pagada.models.response.GenericResponse;
 import ar.com.ada.api.pagada.services.*;
 import ar.com.ada.api.pagada.services.ServicioService.ServicioValidacionEnum;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import ar.com.ada.api.pagada.entities.Servicio.EstadoEnum;
-import org.springframework.web.bind.annotation.*;
-
 @RestController
 public class ServicioController {
+
     @Autowired
     EmpresaService empresaService;
+
     @Autowired
     DeudorService deudorService;
+
     @Autowired
     ServicioService servicioService;
 
     @PostMapping("/api/servicios")
     public ResponseEntity<GenericResponse> crearServicio(@RequestBody ServicioRequest servicioReq) {
+
         GenericResponse genericResponse = new GenericResponse();
         // 1) instanciar el objeto(en este caso el servicio)
         // 2) validar servicio ,si no es todo ok q devuleva un 400
         // 3) crear en la base de datos
+
         // Comenzamos con el 1) instanciar el objeto(en este caso el servicio)
         Servicio servicio = new Servicio();
         Empresa empresa = empresaService.buscarEmpresaPorId(servicioReq.empresaId);
+
         servicio.setEmpresa(empresa);
+
         Deudor deudorEncontrado = deudorService.buscarDeudorPorId(servicioReq.deudorId);
         servicio.setDeudor(deudorEncontrado);
+
         TipoServicio tipoServicio = servicioService.buscarTipoServicioPorId(servicioReq.tipoServicioId);
         servicio.setTipoServicio(tipoServicio);
+
         servicio.setTipoComprobante(servicioReq.tipoComprobanteId);
         servicio.setNumero(servicioReq.numero);
         servicio.setFechaEmision(servicioReq.fechaEmision);
@@ -55,27 +60,34 @@ public class ServicioController {
         servicio.setMoneda(servicioReq.moneda);
         servicio.setCodigoBarras(servicioReq.codigoBarras);
         servicio.setEstadoId(servicioReq.estadoId);
+
         // Comenzamos on la seccion 2) validar servicio ,si no es todo ok q devuleva un
         // 400
         ServicioValidacionEnum servicioVResultado;
         servicioVResultado = servicioService.validarServicio(servicio);
+
         if (servicioVResultado != ServicioValidacionEnum.OK) {
             genericResponse.isOk = false;
             genericResponse.message = "Hubo un error en la validacion del servicio" + servicioVResultado;
+
             return ResponseEntity.badRequest().body(genericResponse); // Error http 400
         }
+
         // Comenzamos con la 3) crear en la base de datos
         servicioService.crearSevicio(servicio);
+
         if (servicio.getServicioId() == null) {
             genericResponse.isOk = false;
             genericResponse.message = "No se pudo crear el servicio";
             return ResponseEntity.badRequest().body(genericResponse);
+
         } else {
             genericResponse.isOk = true;
             genericResponse.id = servicio.getServicioId();
             genericResponse.message = "Se creó el servicio éxitosamente.";
             return ResponseEntity.ok(genericResponse);
         }
+
     }
 
     /*
@@ -90,6 +102,7 @@ public class ServicioController {
      * todos) GET /api/servicios?codigo=AAAAAAA : obtiene un servicio en particular
      * usando el codigo de Barras.
      */
+
     // LISTA los que son de la empresa y son pendientes.
     @GetMapping("/api/servicios")
     public ResponseEntity<List<Servicio>> listarServicios(
@@ -100,6 +113,7 @@ public class ServicioController {
 
         List<Servicio> servicios = new ArrayList<>();
         // "/api/servicios?empresa=33393&codigo=383811&deudor=9929229"
+        // Version Alexmary
         if (codigo != null) {
             servicios = servicioService.listarPorCodigoBarras(codigo);
         } else if (empresa != null && deudor == null) {
@@ -113,7 +127,7 @@ public class ServicioController {
         }
 
         // "/api/servicios?deudor=9929229"
-         // Version Ailin
+        // Version Ailin
         /*
          * Integer empresaId = empresa; Integer deudorId = deudor; String codigoBarras =
          * codigo;
@@ -149,6 +163,8 @@ public class ServicioController {
          * deudor));
          */
         return ResponseEntity.ok(servicios);
+
+    }
 
     /**
      * Pagar Servicio: POST /api/servicios/{id}: paga un servicio especifico con el
@@ -190,27 +206,35 @@ public class ServicioController {
         // En este caso customizo las respuestas
         switch (pagoResult.getResultado()) {
             case RECHAZADO_NO_ACEPTA_PAGO_PARCIAL:
+
                 r.isOk = false;
                 r.message = "No acepta pago parcial";
 
                 return ResponseEntity.badRequest().body(r);
 
             case RECHAZADO_SERVICIO_INEXISTENTE:
+
                 r.isOk = false;
                 r.message = "Servicio inexistente";
 
                 return ResponseEntity.badRequest().body(r);
+
             case RECHAZADO_SERVICIO_YA_PAGO:
+
                 r.isOk = false;
                 r.message = "Servicio ya pago";
+
                 return ResponseEntity.badRequest().body(r);
 
             case ERROR_INESPERADO:
+
                 r.isOk = false;
                 r.message = "Error inesperado";
+
                 return ResponseEntity.badRequest().body(r);
 
             case REALIZADO:
+
                 r.isOk = true;
                 r.id = pagoResult.getPago().getPagoId();
                 r.message = "se realizo el pago con exito";
@@ -224,11 +248,15 @@ public class ServicioController {
     // @PostMapping("/api/pagos")
     // public ResponseEntity<GenericResponse> crearPago(@RequestBody InfoPagoRequest
     // pago){
+
     // GenericResponse r = new GenericResponse();
+
     // // To do: instanciarlo
     // // grabarlo en la db a traves del service.
+
     // return ResponseEntity.ok(r);
     // }
+
     /*
      * 5) Modificar Vencimiento e Importe de un Servicio PUT /api/servicios/{id}
      * 
@@ -238,6 +266,7 @@ public class ServicioController {
     @PutMapping("/api/servicios/{id}")
     public ResponseEntity<GenericResponse> actualizarServicio(@PathVariable Integer id,
             @RequestBody ActualizarServicioRequest actualizarS) {
+
         GenericResponse response = new GenericResponse();
 
         // Buscar el servicio
@@ -259,24 +288,9 @@ public class ServicioController {
 
             return ResponseEntity.badRequest().body(response); // Error http 400
         }
-        // Buscar el servicio
-        // actualizar propiedades
-        // grabarlo
-
-        servicio.setImporte(actualizarS.importe);
-        servicio.setFechaVencimiento(actualizarS.vencimiento);
-
-        // Agrego validacion adicional, mas alla de ue la hago en grabar.
-        ServicioValidacionEnum servicioVResultado;
-        servicioVResultado = servicioService.validarServicio(servicio);
-
-        if (servicioVResultado != ServicioValidacionEnum.OK) {
-            response.isOk = false;
-            response.message = "Hubo un error en la validacion del servicio " + servicioVResultado;
-            return ResponseEntity.badRequest().body(response); // Error http 400
-        }
 
         servicioService.grabar(servicio);
+
         response.isOk = true;
         response.message = "Servicio actualizado!";
         response.id = servicio.getServicioId();
@@ -299,7 +313,7 @@ public class ServicioController {
         GenericResponse servicioAnulado = new GenericResponse();
 
         Servicio servicio = servicioService.buscarServicioPorId(id);
-
+        
         if (servicio.getEstadoId() == EstadoEnum.PAGADO) {
             servicioAnulado.isOk = false;
             servicioAnulado.message = "No se puede anular un servicio pago";
@@ -310,12 +324,13 @@ public class ServicioController {
         servicio.setEstadoId(EstadoEnum.ANULADO);
 
         servicioService.grabar(servicio);
-
+        
         servicioAnulado.isOk = true;
         servicioAnulado.id = id;
         servicioAnulado.message = "Se anulo con exito";
-
+        
         return ResponseEntity.ok(servicioAnulado);
 
     }
+
 }

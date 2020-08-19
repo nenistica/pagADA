@@ -11,7 +11,9 @@ import ar.com.ada.api.pagada.services.EmpresaService.EmpresaValidacionEnum;
 import ar.com.ada.api.pagada.entities.Pais.*;
 import ar.com.ada.api.pagada.entities.Servicio.EstadoEnum;
 import ar.com.ada.api.pagada.entities.Servicio.TipoComprobanteEnum;
+
 import static org.junit.jupiter.api.Assertions.*;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -71,7 +73,6 @@ class DemoApplicationTests {
 	}
 
 	@Test
-	
 	void Empresa_nombre_null() {
 		// System.out.println("************* INICIO TEST EMPRESA NULL ");
 		EmpresaValidacionEnum resultado;
@@ -112,7 +113,8 @@ class DemoApplicationTests {
 		empresa.setPaisId(32);
 		empresa.setTipoIdImpositivo(TipoIdImpositivoEnum.CUIT);
 		empresa.setIdImpositivo("1234567891011");
-		empresa.setNombre("dsajodenodfienidomwqoiedheoidmasodhj32fbdnwqojjdh3oifhqwidin32iodnwdhqiwdnwqldh4oufubufu32oufh3pimdkwqkmcjebfuoeobfoencoqndioadmsakldhienqw");
+		empresa.setNombre(
+				"SaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaantiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiTalledoS.a");
 		resultado = empresaService.validarEmpresa(empresa);
 
 		assertTrue(resultado == EmpresaValidacionEnum.NOMBRE_INVALIDO);
@@ -229,7 +231,7 @@ class DemoApplicationTests {
 		empresa.setIdImpositivo("4337373425478788");
 		empresa.setNombre("ADA TESTIN EMPRESA");
 
-
+		
 		empresaService.crearEmpresa(empresa);
 
 		// 2.
@@ -270,7 +272,4 @@ class DemoApplicationTests {
 		assertTrue(servicioBaseDatos.getEstadoId() == EstadoEnum.ANULADO);
 	}
 
-
 }
-
-

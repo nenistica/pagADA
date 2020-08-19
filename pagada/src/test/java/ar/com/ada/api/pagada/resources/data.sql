@@ -1,9 +1,9 @@
 INSERT INTO tipo_servicio
-(`tipo_servicio_id`,`nombre`)
+('tipo_servicio_id','nombre')
 VALUES (10, 'AGUA');
 
 INSERT INTO tipo_servicio
-(`tipo_servicio_id`,`nombre`)
+('tipo_servicio_id','nombre')
 VALUES (11, 'LUZ');
 
 
